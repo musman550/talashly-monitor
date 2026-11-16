@@ -1,0 +1,59 @@
+name: keepalive-and-alert
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"     # har 10 minute (Render free 15 min idle par sota hai)
+  workflow_dispatch:           # manual "Run workflow" button
+  push:
+    branches: [main]           # har push par bhi chalta hai (60-din inactivity se bachata hai)
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ping and check /api/health
+        id: check
+        env:
+          URLS: ${{ vars.TARGET_URLS }}
+        run: |
+          set +e
+          bash scripts/check.sh
+          echo "rc=$?" >> "$GITHUB_OUTPUT"
+      - name: Open or update the alert issue when DOWN
+        if: steps.check.outputs.rc != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body="Talashly health check FAILED at $(date -u +'%Y-%m-%d %H:%M UTC').
+
+          $(cat summary.txt)
+
+          Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          gh label create down --color B60205 --description "Service is down" 2>/dev/null || true
+          n="$(gh issue list --label down --state open --json number --jq '.[0].number')"
+          if [ -z "$n" ]; then
+            gh issue create --title "Talashly is DOWN" --label down --body "$body"
+          else
+            gh issue comment "$n" --body "$body"
+          fi
+      - name: Close the alert issue when UP again
+        if: steps.check.outputs.rc == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --label down --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Recovered at $(date -u +'%Y-%m-%d %H:%M UTC'). All checks passed."
+          done
+      - name: Fail the run if DOWN (red X in Actions + email from GitHub)
+        if: steps.check.outputs.rc != '0'
+        run: exit 1
