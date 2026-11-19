@@ -1,5 +1,11 @@
 # talashly-monitor
 
+Tiny repo whose only job: **ping your Talashly server on a schedule and alert you when it is down.**
+
+- Every 10 minutes GitHub Actions calls `<your-url>/api/health` (up to 3 tries, 90 s timeout, so a sleeping Render free service has time to wake).
+- If it fails, it opens a GitHub Issue **"Talashly is DOWN"** (GitHub emails you; set Watch -> All activity) and keeps commenting. When the server recovers, the issue is closed automatically.
+- The failed run also shows a red X and GitHub sends a failed-workflow email (Settings -> Notifications -> Actions).
+
 <!-- AUTO-SEO:START -->
 > **Summary:** The workflow pings the specified URLs every 10 minutes. If a ping fails, it opens a GitHub issue and keeps commenting until the server recovers, then closes the issue.
 
@@ -22,13 +28,6 @@ Yes, the workflow pings every 10 minutes, which is frequent enough to wake a Ren
 
 <sub>Generated automatically from this repository's own content. [How this works](https://musman550.github.io/github-traffic-analytics-dashboard/optimizer/)</sub>
 <!-- AUTO-SEO:END -->
-
-
-Tiny repo whose only job: **ping your Talashly server on a schedule and alert you when it is down.**
-
-- Every 10 minutes GitHub Actions calls `<your-url>/api/health` (up to 3 tries, 90 s timeout, so a sleeping Render free service has time to wake).
-- If it fails, it opens a GitHub Issue **"Talashly is DOWN"** (GitHub emails you; set Watch -> All activity) and keeps commenting. When the server recovers, the issue is closed automatically.
-- The failed run also shows a red X and GitHub sends a failed-workflow email (Settings -> Notifications -> Actions).
 
 ## Setup (2 minutes)
 1. Make this repo **Public** (public repos get free Actions minutes; private ones can run out).
