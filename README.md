@@ -1,5 +1,29 @@
 # talashly-monitor
 
+<!-- AUTO-SEO:START -->
+> **Summary:** The workflow pings the specified URLs every 10 minutes. If a ping fails, it opens a GitHub issue and keeps commenting until the server recovers, then closes the issue.
+
+**Keywords:** github-actions · render · schedule · ping · alert · health-check · oracle-cloud · free-service
+
+### FAQ
+
+**How do I configure the URLs to ping?**  
+Set the GitHub Actions variable TARGET_URLS to a comma- or space-separated list of URLs, e.g., TARGET_URLS="https://your-app.onrender.com".
+
+**What happens when the server recovers?**  
+The workflow automatically closes the open issue and stops commenting once the ping succeeds again.
+
+**Will this work with a Render free service?**  
+Yes, the workflow pings every 10 minutes, which is frequent enough to wake a Render free service that sleeps after 15 minutes of inactivity.
+
+### Related projects
+- [talashly](https://github.com/musman550/talashly): Self-hosted open-source search engine with its own crawler, RAG answers and multilingual support (Python). No third-part
+- [Website](https://musfiraai.com)
+
+<sub>Generated automatically from this repository's own content. [How this works](https://musman550.github.io/github-traffic-analytics-dashboard/optimizer/)</sub>
+<!-- AUTO-SEO:END -->
+
+
 Tiny repo whose only job: **ping your Talashly server on a schedule and alert you when it is down.**
 
 - Every 10 minutes GitHub Actions calls `<your-url>/api/health` (up to 3 tries, 90 s timeout, so a sleeping Render free service has time to wake).
